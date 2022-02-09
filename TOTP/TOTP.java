@@ -100,20 +100,22 @@ public class TOTP {
         byte[] hash = hmac_sha(crpyto, k, msg);
 
         int offset = hash[hash.length-1] & 0xf; //헥스자릿수로 잘라냄 0xF 1111
-        for(int i=0;i<hash.length;i++)
-            System.out.print(hash[i]);
+
 //        System.out.println();
 //        System.out.println(hash[offset]+" "+hash[offset+1]+" "+hash[offset+2]+" "+hash[offset+3]);
         // 아직까지 대부분 연산은 32비트로함 그래서 32비트만큼만 계산한듯함
+        // binary는 truncatedHash임
         int binary = ((hash[offset] & 0x7f) << 24) |
                 ((hash[offset+1] & 0xff) << 16) |
                 ((hash[offset+2] & 0xff) << 8) |
                 (hash[offset+3] & 0xff);
+
         //System.out.println((hash[offset] & 0x7f)<<24); 그대로 가져온후 24비트 이동
         // 0xff 음수를 양수로 변환시켜줌 자바는 unsigned가 없음
-        System.out.println(hash[hash.length-1]);
-        System.out.println(hash[hash.length-1] & 0xf);
+        //System.out.println(hash[hash.length-1]);
+        //System.out.println(hash[hash.length-1] & 0xf);
 
+        // hash를 10제곱 (자리수)로 나눈 나머지를 finalOTP로사용
         int otp = binary % DIGITS_POWER[codeDigits];
 
         result = Integer.toString(otp);
@@ -123,6 +125,17 @@ public class TOTP {
         }
 
         return result;
+    }
+
+    public static String calcSteps(Long time, Long T0, Long X)
+    {
+        long T = (time-T0)/X;
+
+        String steps = "0";
+        steps = Long.toHexString(T).toUpperCase();
+        while(steps.length()<16)
+            steps = "0"+steps;
+        return steps;
     }
 
 
